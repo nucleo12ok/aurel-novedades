@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Novedades Aurel</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500&display=swap');
+
+  :root {
+    --bg: #0f0f0f;
+    --surface: #1a1a1a;
+    --border: #2a2a2a;
+    --accent: #06b6d4;
+    --accent-dim: rgba(6,182,212,0.12);
+    --text: #e8e8e8;
+    --muted: #666;
+    --ok: #22c55e;
+    --err: #ef4444;
+    --warn: #eab308;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px 80px;
+  }
+
+  #loginScreen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    width: 100%;
+  }
+
+  .login-box {
+    background: var(--surface);
+    border: 1px solid var(--accent);
+    padding: 48px 40px;
+    width: 100%;
+    max-width: 380px;
+  }
+
+  .login-box h1 {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+
+  .login-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    background: var(--accent-dim);
+    display: inline-block;
+    padding: 3px 8px;
+    margin-bottom: 24px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .login-box p { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+
+  .field-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  input[type="password"] {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 14px;
+    padding: 12px 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  input:focus { border-color: var(--accent); }
+
+  .btn {
+    width: 100%;
+    background: var(--accent);
+    color: #000;
+    border: none;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 13px;
+    cursor: pointer;
+    margin-top: 16px;
+    transition: opacity 0.2s;
+    text-transform: uppercase;
+  }
+
+  .btn:hover { opacity: 0.85; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .login-error {
+    color: var(--err);
+    font-size: 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    margin-top: 10px;
+    display: none;
+  }
+
+  #app { display: none; width: 100%; max-width: 700px; }
+
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo-block {}
+
+  .logo {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .app-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 32px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: -0.5px;
+  }
+
+  .app-badge {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    background: var(--accent-dim);
+    padding: 3px 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 6px;
+  }
+
+  .logout-btn {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: color 0.2s;
+  }
+  .logout-btn:hover { color: var(--text); }
+
+  .drop-zone {
+    border: 1px dashed var(--border);
+    padding: 60px 40px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    position: relative;
+    margin-bottom: 16px;
+  }
+
+  .drop-zone:hover, .drop-zone.dragover {
+    border-color: var(--accent);
+    background: var(--accent-dim);
+  }
+
+  .drop-zone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+  }
+
+  .drop-icon { font-size: 36px; margin-bottom: 16px; display: block; }
+  .drop-title { font-family: 'IBM Plex Mono', monospace; font-size: 14px; margin-bottom: 6px; }
+  .drop-sub { font-size: 12px; color: var(--muted); }
+
+  .file-selected {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .file-name { font-family: 'IBM Plex Mono', monospace; font-size: 13px; flex: 1; text-align: left; }
+
+  .file-clear {
+    font-size: 18px;
+    color: var(--muted);
+    cursor: pointer;
+    background: none;
+    border: none;
+    transition: color 0.2s;
+  }
+  .file-clear:hover { color: var(--err); }
+
+  .process-btn { margin-bottom: 24px; margin-top: 0; }
+
+  #statusBox { display: none; margin-bottom: 16px; }
+
+  .status-bar {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    padding: 14px 16px;
+    border-left: 3px solid var(--accent);
+    background: var(--surface);
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .spinner {
+    width: 14px; height: 14px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    flex-shrink: 0;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .alert {
+    padding: 14px 16px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    margin-bottom: 16px;
+    border-left: 3px solid;
+  }
+  .alert-warn { border-color: var(--warn); background: rgba(234,179,8,0.08); color: var(--warn); }
+  .alert-err  { border-color: var(--err);  background: rgba(239,68,68,0.08);  color: var(--err); }
+  .alert-ok   { border-color: var(--ok);   background: rgba(34,197,94,0.08);  color: var(--ok); }
+
+  #previewSection { display: none; }
+
+  .section-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead tr { border-bottom: 1px solid var(--border); }
+
+  th {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: 400;
+  }
+
+  td {
+    padding: 11px 12px;
+    border-bottom: 1px solid var(--border);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    font-size: 10px;
+    padding: 3px 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+  }
+  .badge-ok   { color: var(--ok);   background: rgba(34,197,94,0.1); }
+  .badge-err  { color: var(--err);  background: rgba(239,68,68,0.1); }
+  .badge-skip { color: var(--muted); background: rgba(255,255,255,0.06); }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <h1>Aurel</h1>
+    <div class="login-tag">Novedades Aurel</div>
+    <p>Ingresa la contraseña para continuar</p>
+    <label class="field-label">Contraseña</label>
+    <input type="password" id="pwdInput" placeholder="••••••••"
+      onkeydown="if(event.key==='Enter') doLogin()">
+    <div class="login-error" id="loginErr">Contraseña incorrecta</div>
+    <button class="btn" onclick="doLogin()">Entrar</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="header">
+    <div class="logo-block">
+      <div class="logo">Aurel</div>
+      <div class="app-title">NOVEDADES AUREL</div>
+      <div class="app-badge">Mensajería: Aurel</div>
+    </div>
+    <button class="logout-btn" onclick="doLogout()">Salir</button>
+  </div>
+
+  <div class="drop-zone" id="dropZone">
+    <input type="file" id="fileInput" accept=".pdf" onchange="onFileSelected(this.files[0])">
+    <span class="drop-icon">📄</span>
+    <div class="drop-title">Arrastra el PDF aquí o haz clic para seleccionar</div>
+    <div class="drop-sub">Solo archivos PDF de etiquetas Aurel</div>
+  </div>
+
+  <button class="btn process-btn" id="processBtn" onclick="processFile()" disabled>
+    Extraer y enviar a Novedades
+  </button>
+
+  <div id="statusBox">
+    <div class="status-bar">
+      <div class="spinner"></div>
+      <span id="statusMsg">Procesando...</span>
+    </div>
+  </div>
+
+  <div id="alertBox"></div>
+
+  <div id="previewSection">
+    <div class="section-title">Etiquetas encontradas</div>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>OrderNo</th>
+          <th>Reference Id</th>
+          <th>Nombre</th>
+          <th>Teléfono</th>
+          <th>Total</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody id="tblBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+// ─── CONFIG ─────────────────────────────────────────────────────
+const PASSWORD        = "aurel2024";
+const APPS_SCRIPT_URL  = "https://script.google.com/macros/s/AKfycbzs6iTgSufDnj7FvlV7hZdWWNjJIH98XhKdWJTH-5BS3a6q7vDP91_d5LbRH2L2y5eJEw/exec";
+// ────────────────────────────────────────────────────────────────
+
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+let selectedFile = null;
+let labels = [];
+
+// ── AUTH ──
+function doLogin() {
+  if (document.getElementById("pwdInput").value === PASSWORD) {
+    document.getElementById("loginScreen").style.display = "none";
+    document.getElementById("app").style.display = "block";
+    document.getElementById("loginErr").style.display = "none";
+  } else {
+    document.getElementById("loginErr").style.display = "block";
+  }
+}
+
+function doLogout() {
+  document.getElementById("loginScreen").style.display = "flex";
+  document.getElementById("app").style.display = "none";
+  document.getElementById("pwdInput").value = "";
+  resetAll();
+}
+
+// ── FILE ──
+const dropZone = document.getElementById("dropZone");
+dropZone.addEventListener("dragover", e => { e.preventDefault(); dropZone.classList.add("dragover"); });
+dropZone.addEventListener("dragleave", () => dropZone.classList.remove("dragover"));
+dropZone.addEventListener("drop", e => {
+  e.preventDefault();
+  dropZone.classList.remove("dragover");
+  const f = e.dataTransfer.files[0];
+  if (f) onFileSelected(f);
+});
+
+function onFileSelected(f) {
+  if (!f || f.type !== "application/pdf") {
+    showAlert("Solo se aceptan archivos PDF.", "err");
+    return;
+  }
+  selectedFile = f;
+  dropZone.innerHTML = `
+    <div class="file-selected">
+      <span style="font-size:22px">📄</span>
+      <span class="file-name">${f.name}</span>
+      <button class="file-clear" onclick="clearFile(event)">✕</button>
+    </div>`;
+  document.getElementById("processBtn").disabled = false;
+  clearResults();
+}
+
+function clearFile(e) {
+  e && e.stopPropagation();
+  selectedFile = null;
+  document.getElementById("processBtn").disabled = true;
+  dropZone.innerHTML = `
+    <input type="file" id="fileInput" accept=".pdf" onchange="onFileSelected(this.files[0])">
+    <span class="drop-icon">📄</span>
+    <div class="drop-title">Arrastra el PDF aquí o haz clic para seleccionar</div>
+    <div class="drop-sub">Solo archivos PDF de etiquetas Aurel</div>`;
+  clearResults();
+}
+
+// ── PDF EXTRACT ──
+// Estructura de una etiqueta Aurel (texto plano extraído con pdf.js):
+//   Receiver: #ZD8219310 / Amableabreu - +18297743575
+//   COD: DOP 1,999.00
+//   Note: 1x Cardo Mariano - 90 Cápsulas
+//   OrderNo: 1889317
+//   Reference Id: #ZD8219310
+async function extractLabels(file) {
+  const buf = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+  const result = [];
+
+  for (let p = 1; p <= pdf.numPages; p++) {
+    const page    = await pdf.getPage(p);
+    const content = await page.getTextContent();
+    const text    = content.items.map(i => i.str).join("\n");
+
+    const orderMatch   = text.match(/OrderNo[:\s]*([0-9]+)/i);
+    const refMatch      = text.match(/Reference\s*Id[:\s]*([#A-Z0-9]+)/i);
+    const codMatch       = text.match(/COD[:\s]*DOP\s*([0-9.,]+)/i);
+    const noteMatch     = text.match(/Note[:\s]*([\s\S]*?)\n\s*OrderNo/i);
+
+    // El bloque Receiver contiene "OrderNumber / Nombre [- ] +telefono"
+    // Ej: "Receiver: #ZD8219310 / Amableabreu - +18297743575"
+    const receiverMatch = text.match(/Receiver[:\s]*([\s\S]*?)\n\s*(?:Zona|COD)/i);
+
+    if (!orderMatch || !refMatch || !receiverMatch) continue;
+
+    const receiverRaw = receiverMatch[1].replace(/\n/g, ' ').trim();
+
+    // Separar OrderNumber (antes del "/") del resto
+    const slashIdx = receiverRaw.indexOf('/');
+    const afterSlash = slashIdx >= 0 ? receiverRaw.slice(slashIdx + 1).trim() : receiverRaw;
+
+    // El teléfono es el primer "+" seguido de 10+ dígitos dentro de ese bloque
+    const phoneMatch = afterSlash.match(/\+\d{10,}/);
+    const phone = phoneMatch ? phoneMatch[0] : '';
+
+    // El nombre es todo lo que está antes del teléfono, quitando un guion
+    // final si existe (el guion solo aparece cuando el cliente no escribió
+    // apellido; si escribió algo pegado como "Amableabreu" se deja igual)
+    let name = phone ? afterSlash.slice(0, afterSlash.indexOf(phone)) : afterSlash;
+    name = name.replace(/-\s*$/, '').trim();
+
+    const productDetails = noteMatch ? noteMatch[1].replace(/\n/g, ' ').trim() : '';
+    const totalPrice = codMatch ? codMatch[1].trim() : '';
+
+    result.push({
+      orderNo: orderMatch[1].trim(),
+      refId: refMatch[1].trim(),
+      firstName: name,
+      phone: phone,
+      productDetails: productDetails,
+      totalPrice: totalPrice,
+      status: "pending"
+    });
+  }
+  return result;
+}
+
+// ── PROCESS ──
+async function processFile() {
+  if (!selectedFile) return;
+  setStatus("Leyendo PDF...");
+  clearResults();
+
+  try {
+    labels = await extractLabels(selectedFile);
+  } catch(e) {
+    hideStatus();
+    showAlert("Error al leer el PDF: " + e.message, "err");
+    return;
+  }
+
+  if (!labels.length) {
+    hideStatus();
+    showAlert("No se encontraron etiquetas válidas en este PDF. Verifica que sea un archivo de etiquetas Aurel.", "warn");
+    return;
+  }
+
+  setStatus(`Enviando ${labels.length} etiqueta(s) a procesar...`);
+  renderTable("pending");
+
+  try {
+    await sendToSheets(labels);
+    labels.forEach(l => l.status = "ok");
+    renderTable("ok");
+    hideStatus();
+    showAlert(`✓ ${labels.length} etiqueta(s) enviadas. Se enviará mensaje de WhatsApp solo a los pedidos nuevos (no enviados antes).`, "ok");
+  } catch(e) {
+    labels.forEach(l => l.status = "err");
+    renderTable("err");
+    hideStatus();
+    showAlert("Error al escribir en Google Sheets: " + e.message, "err");
+  }
+
+  document.getElementById("previewSection").style.display = "block";
+  document.getElementById("processBtn").disabled = true;
+}
+
+// ── SEND TO SHEETS via Apps Script ──
+async function sendToSheets(rows) {
+  const res = await fetch(APPS_SCRIPT_URL, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain" },
+    body: JSON.stringify({
+      rows: rows.map(r => [r.orderNo, r.refId, r.firstName, r.phone, r.productDetails, r.totalPrice])
+    })
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const json = await res.json();
+  if (json.status !== "ok") throw new Error(json.message || "Error del servidor");
+}
+
+// ── UI ──
+function setStatus(msg) {
+  document.getElementById("statusBox").style.display = "block";
+  document.getElementById("statusMsg").textContent = msg;
+}
+function hideStatus() { document.getElementById("statusBox").style.display = "none"; }
+
+function showAlert(msg, type) {
+  document.getElementById("alertBox").innerHTML =
+    `<div class="alert alert-${type}">${msg}</div>`;
+}
+
+function renderTable(statusOverride) {
+  document.getElementById("previewSection").style.display = "block";
+  const badge = {
+    ok:      `<span class="badge badge-ok">✓ Enviado</span>`,
+    err:     `<span class="badge badge-err">✕ Error</span>`,
+    pending: `<span class="badge badge-skip">— Pendiente</span>`
+  };
+  document.getElementById("tblBody").innerHTML = labels.map((r, i) => `
+    <tr>
+      <td style="color:var(--muted)">${i + 1}</td>
+      <td>${r.orderNo}</td>
+      <td>${r.refId}</td>
+      <td>${r.firstName || '<span style="color:var(--err)">sin nombre</span>'}</td>
+      <td>${r.phone || '<span style="color:var(--err)">sin tel.</span>'}</td>
+      <td>${r.totalPrice}</td>
+      <td>${badge[statusOverride || r.status]}</td>
+    </tr>`).join("");
+}
+
+function clearResults() {
+  labels = [];
+  document.getElementById("previewSection").style.display = "none";
+  document.getElementById("tblBody").innerHTML = "";
+  document.getElementById("alertBox").innerHTML = "";
+  hideStatus();
+}
+
+function resetAll() { clearFile(); }
+</script>
+</body>
+</html>
