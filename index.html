@@ -455,6 +455,16 @@ function clearFile(e) {
 //   Note: 1x Cardo Mariano - 90 Cápsulas
 //   OrderNo: 1889317
 //   Reference Id: #ZD8219310
+// Convierte cualquier formato de monto (1,899.00 / 1899,00 / 1.899,00) al estándar 1,899.00
+function normalizarMontoAurel(valor) {
+  let s = String(valor || '').replace(/[^0-9.,]/g, '');
+  if (!s) return '';
+  const m = s.match(/[.,](\d{1,2})$/);
+  let entero = s, dec = '00';
+  if (m) { entero = s.slice(0, m.index); dec = m[1].padEnd(2, '0'); }
+  entero = entero.replace(/[.,]/g, '') || '0';
+  return String(Number(entero)).replace(/\B(?=(\d{3})+(?!\d))/g, ',') + '.' + dec;
+}  
 async function extractLabels(file) {
   const buf = await file.arrayBuffer();
   const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
@@ -493,7 +503,7 @@ async function extractLabels(file) {
     name = name.replace(/-\s*$/, '').trim();
 
     const productDetails = noteMatch ? noteMatch[1].replace(/\n/g, ' ').trim() : '';
-    const totalPrice = codMatch ? codMatch[1].trim() : '';
+    const totalPrice = codMatch ? normalizarMontoAurel(codMatch[1]) : '';
 
     result.push({
       orderNo: orderMatch[1].trim(),
