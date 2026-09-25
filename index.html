@@ -467,7 +467,7 @@ async function extractLabels(file) {
 
     const orderMatch   = text.match(/OrderNo[:\s]*([0-9]+)/i);
     const refMatch      = text.match(/Reference\s*Id[:\s]*([#A-Z0-9]+)/i);
-    const codMatch       = text.match(/COD[:\s]*DOP\s*([0-9.,]+)/i);
+    const codMatch       = text.match(/COD[:\s]*(?:DOP\s*)?([0-9][0-9.,]*)(?:\s*DOP)?/i);
     const noteMatch     = text.match(/Note[:\s]*([\s\S]*?)\n\s*OrderNo/i);
 
     // El bloque Receiver contiene "OrderNumber / Nombre [- ] +telefono"
